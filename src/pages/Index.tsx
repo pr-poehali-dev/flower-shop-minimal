@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import Cart from '@/components/Cart';
+import CheckoutForm from '@/components/CheckoutForm';
 import { useToast } from '@/hooks/use-toast';
 
 interface Bouquet {
@@ -90,6 +91,7 @@ const reviews = [
 export default function Index() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const { toast } = useToast();
 
   const addToCart = (bouquet: Bouquet) => {
@@ -122,6 +124,22 @@ export default function Index() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleCheckoutSuccess = () => {
+    setCartItems([]);
+  };
+
+  const getTotalPrice = () => {
+    return cartItems.reduce((sum, item) => {
+      const price = parseInt(item.price.replace(/\D/g, ''));
+      return sum + price * item.quantity;
+    }, 0);
   };
 
   const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -168,38 +186,41 @@ export default function Index() {
         </div>
       </nav>
 
-      <section id="home" className="pt-40 pb-28 px-4 bg-gradient-to-br from-secondary/40 via-background to-accent/20">
+      <section id="home" className="pt-44 pb-32 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-secondary/30 via-background to-accent/20 -z-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(145,200,145,0.08),transparent_50%)] -z-10" />
+        
         <div className="container mx-auto text-center animate-fade-in">
-          <div className="inline-block mb-4">
-            <Badge variant="secondary" className="text-sm px-4 py-1">
+          <div className="inline-block mb-6">
+            <Badge variant="secondary" className="text-sm px-5 py-2 rounded-full font-medium shadow-sm">
               🌸 Доставка за 2 часа
             </Badge>
           </div>
-          <h2 className="text-6xl md:text-8xl font-serif font-light mb-6 leading-tight">
+          <h2 className="text-6xl md:text-8xl lg:text-9xl font-serif font-bold mb-8 leading-[1.1] tracking-tight">
             Свежие цветы<br />
-            <span className="text-primary">каждый день</span>
+            <span className="gradient-text">каждый день</span>
           </h2>
-          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
             Создаём уникальные букеты для особенных моментов вашей жизни
           </p>
-          <Button size="lg" onClick={() => scrollToSection('catalog')} className="shadow-lg text-lg px-8 py-6 rounded-full">
+          <Button size="lg" onClick={() => scrollToSection('catalog')} className="shadow-xl text-lg px-10 py-7 rounded-2xl hover:shadow-2xl transition-all hover:scale-105">
             Посмотреть каталог
-            <Icon name="ArrowRight" size={20} className="ml-2" />
+            <Icon name="ArrowRight" size={22} className="ml-2" />
           </Button>
         </div>
       </section>
 
-      <section id="catalog" className="py-24 px-4 bg-background">
+      <section id="catalog" className="py-28 px-4 bg-background">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-5xl font-serif mb-4 text-foreground">Наши букеты</h3>
-            <p className="text-lg text-muted-foreground">Каждый букет создан с любовью и вниманием к деталям</p>
+          <div className="text-center mb-20">
+            <h3 className="text-5xl md:text-6xl font-serif mb-5 text-foreground font-bold">Наши букеты</h3>
+            <p className="text-xl text-muted-foreground">Каждый букет создан с любовью и вниманием к деталям</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {bouquets.map((bouquet, index) => (
               <Card 
                 key={bouquet.id} 
-                className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-fade-in border-2 border-secondary/30"
+                className="group overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 animate-fade-in border border-border/50 bg-card"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="aspect-square overflow-hidden bg-gradient-to-br from-secondary/20 to-accent/20 relative">
@@ -208,17 +229,17 @@ export default function Index() {
                     alt={bouquet.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <CardContent className="p-6">
-                  <h4 className="text-2xl font-serif mb-2 group-hover:text-primary transition-colors">{bouquet.name}</h4>
-                  <p className="text-muted-foreground text-sm mb-5 leading-relaxed">{bouquet.description}</p>
-                  <div className="flex justify-between items-center">
+                <CardContent className="p-7">
+                  <h4 className="text-2xl font-serif mb-3 group-hover:text-primary transition-colors font-semibold">{bouquet.name}</h4>
+                  <p className="text-muted-foreground text-base mb-6 leading-relaxed">{bouquet.description}</p>
+                  <div className="flex justify-between items-center gap-4">
                     <span className="text-3xl font-bold text-primary">{bouquet.price}</span>
                     <Button 
                       size="lg"
                       onClick={() => addToCart(bouquet)}
-                      className="rounded-full"
+                      className="rounded-2xl shadow-md hover:shadow-xl transition-all"
                     >
                       <Icon name="ShoppingCart" size={18} className="mr-2" />
                       В корзину
@@ -231,50 +252,52 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="about" className="py-24 px-4 bg-gradient-to-br from-secondary/20 to-accent/10">
-        <div className="container mx-auto max-w-5xl">
-          <div className="text-center mb-16">
-            <h3 className="text-5xl font-serif mb-4">О магазине</h3>
+      <section id="about" className="py-28 px-4 bg-gradient-to-br from-secondary/20 to-accent/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(145,200,145,0.05),transparent_70%)] -z-10" />
+        
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-20">
+            <h3 className="text-5xl md:text-6xl font-serif mb-5 font-bold">О магазине</h3>
           </div>
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-16">
             <div className="space-y-8">
-              <div className="flex gap-5 group">
+              <div className="flex gap-6 group p-6 rounded-3xl hover:bg-white/50 transition-all duration-300">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon name="Flower2" size={32} className="text-primary" />
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                    <Icon name="Flower2" size={36} className="text-primary" />
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-serif text-2xl mb-2">Свежесть</h4>
-                  <p className="text-muted-foreground leading-relaxed">Ежедневные поставки свежих цветов напрямую от лучших поставщиков</p>
+                  <h4 className="font-serif text-2xl mb-3 font-semibold">Свежесть</h4>
+                  <p className="text-muted-foreground leading-relaxed text-base">Ежедневные поставки свежих цветов напрямую от лучших поставщиков</p>
                 </div>
               </div>
-              <div className="flex gap-5 group">
+              <div className="flex gap-6 group p-6 rounded-3xl hover:bg-white/50 transition-all duration-300">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon name="Palette" size={32} className="text-primary" />
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                    <Icon name="Palette" size={36} className="text-primary" />
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-serif text-2xl mb-2">Индивидуальный подход</h4>
-                  <p className="text-muted-foreground leading-relaxed">Создаём букеты по вашим пожеланиям и для любого повода</p>
+                  <h4 className="font-serif text-2xl mb-3 font-semibold">Индивидуальный подход</h4>
+                  <p className="text-muted-foreground leading-relaxed text-base">Создаём букеты по вашим пожеланиям и для любого повода</p>
                 </div>
               </div>
-              <div className="flex gap-5 group">
+              <div className="flex gap-6 group p-6 rounded-3xl hover:bg-white/50 transition-all duration-300">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon name="Truck" size={32} className="text-primary" />
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg">
+                    <Icon name="Truck" size={36} className="text-primary" />
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-serif text-2xl mb-2">Быстрая доставка</h4>
-                  <p className="text-muted-foreground leading-relaxed">Доставим ваш заказ в течение 2 часов по городу</p>
+                  <h4 className="font-serif text-2xl mb-3 font-semibold">Быстрая доставка</h4>
+                  <p className="text-muted-foreground leading-relaxed text-base">Доставим ваш заказ в течение 2 часов по городу</p>
                 </div>
               </div>
             </div>
             <div className="flex items-center">
-              <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-secondary/30">
-                <p className="text-lg text-muted-foreground leading-relaxed">
+              <div className="bg-white/90 backdrop-blur-md p-10 rounded-[2rem] shadow-2xl border border-border/50">
+                <p className="text-lg text-foreground/80 leading-relaxed">
                   Мы работаем с 2015 года и за это время создали тысячи уникальных композиций. 
                   Наша команда профессиональных флористов подберёт идеальный букет для любого события: 
                   от романтического свидания до корпоративного праздника. Мы используем только свежие цветы 
@@ -286,25 +309,25 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="reviews" className="py-24 px-4 bg-background">
+      <section id="reviews" className="py-28 px-4 bg-background">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-5xl font-serif mb-4">Отзывы наших клиентов</h3>
-            <p className="text-lg text-muted-foreground">Нам доверяют уже более 5000 довольных клиентов</p>
+          <div className="text-center mb-20">
+            <h3 className="text-5xl md:text-6xl font-serif mb-5 font-bold">Отзывы наших клиентов</h3>
+            <p className="text-xl text-muted-foreground">Нам доверяют уже более 5000 довольных клиентов</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-10 max-w-7xl mx-auto">
             {reviews.map((review) => (
-              <Card key={review.id} className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-2 border-secondary/30">
+              <Card key={review.id} className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-border/50 bg-gradient-to-br from-card to-secondary/5">
                 <CardContent className="p-8">
-                  <div className="flex gap-1 mb-5">
+                  <div className="flex gap-1 mb-6">
                     {[...Array(review.rating)].map((_, i) => (
-                      <Icon key={i} name="Star" size={20} className="fill-primary text-primary" />
+                      <Icon key={i} name="Star" size={22} className="fill-primary text-primary" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed italic">&ldquo;{review.text}&rdquo;</p>
-                  <div className="border-t pt-5">
+                  <p className="text-foreground/70 mb-8 leading-relaxed text-base italic">&ldquo;{review.text}&rdquo;</p>
+                  <div className="border-t pt-6">
                     <p className="font-semibold text-lg">{review.name}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{review.date}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{review.date}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -313,42 +336,44 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="contacts" className="py-24 px-4 bg-gradient-to-br from-secondary/20 to-accent/10">
-        <div className="container mx-auto max-w-5xl text-center">
-          <h3 className="text-5xl font-serif mb-6">Свяжитесь с нами</h3>
-          <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
+      <section id="contacts" className="py-28 px-4 bg-gradient-to-br from-secondary/20 to-accent/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(145,200,145,0.08),transparent_70%)] -z-10" />
+        
+        <div className="container mx-auto max-w-6xl text-center">
+          <h3 className="text-5xl md:text-6xl font-serif mb-7 font-bold">Свяжитесь с нами</h3>
+          <p className="text-xl text-muted-foreground mb-16 leading-relaxed max-w-3xl mx-auto">
             Мы всегда рады ответить на ваши вопросы и помочь с выбором букета
           </p>
-          <div className="grid md:grid-cols-3 gap-10 mb-12">
-            <div className="flex flex-col items-center group">
-              <div className="w-20 h-20 rounded-2xl bg-primary/15 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <Icon name="Phone" size={36} className="text-primary" />
+          <div className="grid md:grid-cols-3 gap-12 mb-16">
+            <div className="flex flex-col items-center group p-8 rounded-3xl hover:bg-white/50 transition-all duration-300">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl">
+                <Icon name="Phone" size={40} className="text-primary" />
               </div>
-              <h4 className="font-serif text-2xl mb-3">Телефон</h4>
-              <p className="text-muted-foreground text-lg">+7 (999) 123-45-67</p>
+              <h4 className="font-serif text-2xl mb-4 font-semibold">Телефон</h4>
+              <p className="text-foreground/80 text-lg font-medium">+7 (999) 123-45-67</p>
             </div>
-            <div className="flex flex-col items-center group">
-              <div className="w-20 h-20 rounded-2xl bg-primary/15 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <Icon name="Mail" size={36} className="text-primary" />
+            <div className="flex flex-col items-center group p-8 rounded-3xl hover:bg-white/50 transition-all duration-300">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl">
+                <Icon name="Mail" size={40} className="text-primary" />
               </div>
-              <h4 className="font-serif text-2xl mb-3">Email</h4>
-              <p className="text-muted-foreground text-lg">info@flora-shop.ru</p>
+              <h4 className="font-serif text-2xl mb-4 font-semibold">Email</h4>
+              <p className="text-foreground/80 text-lg font-medium">info@flora-shop.ru</p>
             </div>
-            <div className="flex flex-col items-center group">
-              <div className="w-20 h-20 rounded-2xl bg-primary/15 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <Icon name="MapPin" size={36} className="text-primary" />
+            <div className="flex flex-col items-center group p-8 rounded-3xl hover:bg-white/50 transition-all duration-300">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-xl">
+                <Icon name="MapPin" size={40} className="text-primary" />
               </div>
-              <h4 className="font-serif text-2xl mb-3">Адрес</h4>
-              <p className="text-muted-foreground text-lg">ул. Цветочная, 15</p>
+              <h4 className="font-serif text-2xl mb-4 font-semibold">Адрес</h4>
+              <p className="text-foreground/80 text-lg font-medium">ул. Цветочная, 15</p>
             </div>
           </div>
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Button size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg">
-              <Icon name="Phone" size={20} className="mr-2" />
+          <div className="flex justify-center gap-5 flex-wrap">
+            <Button size="lg" className="text-lg px-10 py-7 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+              <Icon name="Phone" size={22} className="mr-2" />
               Позвонить
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full border-2">
-              <Icon name="Mail" size={20} className="mr-2" />
+            <Button size="lg" variant="outline" className="text-lg px-10 py-7 rounded-2xl border-2 hover:bg-white transition-all hover:scale-105">
+              <Icon name="Mail" size={22} className="mr-2" />
               Написать
             </Button>
           </div>
@@ -371,6 +396,15 @@ export default function Index() {
         items={cartItems}
         onRemove={removeFromCart}
         onUpdateQuantity={updateQuantity}
+        onCheckout={handleCheckout}
+      />
+
+      <CheckoutForm
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        totalPrice={getTotalPrice()}
+        itemsCount={cartItemsCount}
+        onSuccess={handleCheckoutSuccess}
       />
     </div>
   );

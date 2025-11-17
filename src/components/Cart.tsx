@@ -17,9 +17,10 @@ interface CartProps {
   items: CartItem[];
   onRemove: (id: number) => void;
   onUpdateQuantity: (id: number, quantity: number) => void;
+  onCheckout: () => void;
 }
 
-export default function Cart({ isOpen, onClose, items, onRemove, onUpdateQuantity }: CartProps) {
+export default function Cart({ isOpen, onClose, items, onRemove, onUpdateQuantity, onCheckout }: CartProps) {
   const getTotalPrice = () => {
     return items.reduce((sum, item) => {
       const price = parseInt(item.price.replace(/\D/g, ''));
@@ -107,11 +108,11 @@ export default function Cart({ isOpen, onClose, items, onRemove, onUpdateQuantit
                 <span className="text-2xl font-bold text-primary">{formatPrice(getTotalPrice())}</span>
               </div>
               <div className="flex flex-col gap-2 w-full">
-                <Button size="lg" className="w-full text-base">
+                <Button size="lg" className="w-full text-base rounded-xl" onClick={onCheckout}>
                   <Icon name="Check" size={20} className="mr-2" />
                   Оформить заказ
                 </Button>
-                <Button size="lg" variant="outline" className="w-full" onClick={onClose}>
+                <Button size="lg" variant="outline" className="w-full rounded-xl" onClick={onClose}>
                   Продолжить покупки
                 </Button>
               </div>
